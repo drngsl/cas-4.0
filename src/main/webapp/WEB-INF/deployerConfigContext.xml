@@ -45,6 +45,8 @@
        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.2.xsd
        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
+    <import resource="backend/${backend:default}.xml"/>
+
     <!--
        | The authentication manager defines security policy for authentication by specifying at a minimum
        | the authentication handlers that will be used to authenticate credential. While the AuthenticationManager
@@ -90,28 +92,8 @@
     <!-- Required for proxy ticket mechanism. -->
     <bean id="proxyAuthenticationHandler"
           class="org.jasig.cas.authentication.handler.support.HttpBasedServiceCredentialsAuthenticationHandler"
-          p:httpClient-ref="httpClient" />
-
-    <!--
-       | TODO: Replace this component with one suitable for your enviroment.
-       |
-       | This component provides authentication for the kind of credential used in your environment. In most cases
-       | credential is a username/password pair that lives in a system of record like an LDAP directory.
-       | The most common authentication handler beans:
-       |
-       | * org.jasig.cas.authentication.LdapAuthenticationHandler
-       | * org.jasig.cas.adaptors.jdbc.QueryDatabaseAuthenticationHandler
-       | * org.jasig.cas.adaptors.x509.authentication.handler.support.X509CredentialsAuthenticationHandler
-       | * org.jasig.cas.support.spnego.authentication.handler.support.JCIFSSpnegoAuthenticationHandler
-       -->
-    <bean id="primaryAuthenticationHandler"
-          class="org.jasig.cas.authentication.AcceptUsersAuthenticationHandler">
-        <property name="users">
-            <map>
-                <entry key="casuser" value="Mellon"/>
-            </map>
-        </property>
-    </bean>
+          p:httpClient-ref="httpClient"
+          p:requireSecure="${http.requireSecure:true}" />
 
     <!-- Required for proxy ticket mechanism -->
     <bean id="proxyPrincipalResolver"
@@ -126,19 +108,6 @@
         <property name="attributeRepository" ref="attributeRepository" />
     </bean>
 
-    <!--
-    Bean that defines the attributes that a service may return.  This example uses the Stub/Mock version.  A real implementation
-    may go against a database or LDAP server.  The id should remain "attributeRepository" though.
-    +-->
-    <bean id="attributeRepository" class="org.jasig.services.persondir.support.StubPersonAttributeDao"
-            p:backingMap-ref="attrRepoBackingMap" />
-    
-    <util:map id="attrRepoBackingMap">
-        <entry key="uid" value="uid" />
-        <entry key="eduPersonAffiliation" value="eduPersonAffiliation" /> 
-        <entry key="groupMembership" value="groupMembership" />
-    </util:map>
-
     <!-- 
     Sample, in-memory data store for the ServiceRegistry. A real implementation
     would probably want to replace this with the JPA-backed ServiceRegistry DAO
@@ -150,7 +119,10 @@
     <util:list id="registeredServicesList">
         <bean class="org.jasig.cas.services.RegexRegisteredService"
               p:id="0" p:name="HTTP and IMAP" p:description="Allows HTTP(S) and IMAP(S) protocols"
-              p:serviceId="^(https?|imaps?)://.*" p:evaluationOrder="10000001" />
+              p:serviceId="^(https?|imaps?)://.*" p:evaluationOrder="10000001"
+              p:enabled="${cas.registerServiceEnabled:true}"
+              p:allowedToProxy="${cas.allowedToProxy:true}"
+              p:ssoEnabled="${cas.ssoEnabled:true}"/>
         <!--
         Use the following definition instead of the above to further restrict access
         to services within your domain (including sub domains).
