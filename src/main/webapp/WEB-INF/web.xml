@@ -98,6 +98,17 @@
     - use org.jasig.cas.web.init.SafeDispatcherServlet
   -->
   <servlet>
+    <servlet-name>restlet</servlet-name>
+    <servlet-class>org.restlet.ext.spring.RestletFrameworkServlet</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>restlet</servlet-name>
+    <url-pattern>/v1/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
     <servlet-name>cas</servlet-name>
     <servlet-class>
       org.jasig.cas.web.init.SafeDispatcherServlet
@@ -106,7 +117,7 @@
       <param-name>publishContext</param-name>
       <param-value>false</param-value>
     </init-param>
-    <load-on-startup>1</load-on-startup>
+    <load-on-startup>2</load-on-startup>
   </servlet>
 	
   <servlet-mapping>
